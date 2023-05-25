@@ -18,7 +18,7 @@ st.set_page_config(
 )
 st.title('LAST 20 RN (AMBER 85)')
 
-all = pd.read_csv('reservations_summary_report (4).csv',thousands=',')
+all = pd.read_csv('reservations_summary_report (5).csv',thousands=',')
 def convert_room_type(room_type):
   if re.search(r'\bGRAND DELUXE ROOM\b|\bGRAND DELUXE\b|\bGRAND DELUXE DOUBLE ROOM\b|\bGRAND DELUXE ROOM ONLY\b|\bGRAND DOUBLE OR TWIN ROOM\b|\bDOUBLE GRAND DELUXE DOUBLE ROOM\b', room_type):
     return 'GRAND DELUXE'
