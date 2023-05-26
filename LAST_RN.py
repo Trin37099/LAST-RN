@@ -164,7 +164,7 @@ for stay, group in filtered_df.groupby('Stay'):
     else:
         last20['LAST RN'] = list(range(1, 41))
 
-    last20_bookings = last20[['Booked-on date', 'ADR', 'Room Type', 'LAST RN']].values.tolist()
+    last20_bookings = last20[['Stay','Booked-on date', 'ADR', 'Room Type', 'LAST RN']].values.tolist()
 
     stay_last20_dict[stay] = last20_bookings
 df_stay_last20 = pd.concat([pd.DataFrame(bookings
