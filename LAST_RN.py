@@ -235,7 +235,7 @@ mean_by_month_and_rn5['ADR'] = mean_by_month_and_rn5['ADR'].apply('{:.2f}'.forma
 mean_by_month_and_rn5['ADR'] = mean_by_month_and_rn5['ADR'].astype('float')
 
 
-t1,t2 = st.tabs(['line plot (Acual)','fitted line'])
+t1,t2,t3 = st.tabs(['line plot (Acual)','fitted line(40 RN)','fitted line(20 RN)'])
 with t1:
   fig = px.line(mean_by_month_and_rn, x='LAST RN', y='ADR',color='Month',text='ADR')
   fig.update_traces(textposition='top center')
@@ -417,4 +417,154 @@ with t2:
       fig.update_layout(title='Linear Regression (MIXED)', xaxis_title='LAST RN', yaxis_title='ADR')
       st.plotly_chart(fig,use_container_width=True)
 
+with t3:
+    for stay, group in filtered_df.groupby('Stay'):
+        last20 = group.tail(20).reset_index(drop=True)
+        num_rows = len(last20)
+        if num_rows < 20:
+            last20['LAST RN'] = list(range(1, num_rows + 1))
+        else:
+            last20['LAST RN'] = list(range(1, 21))
 
+        last20_bookings = last20[['Stay','Booked-on date', 'ADR', 'Room Type', 'LAST RN']].values.tolist()
+
+        stay_last20_dict[stay] = last20_bookings
+
+    df_stay_last20 = pd.concat([pd.DataFrame(bookings, columns=['Stay','Booked-on date', 'ADR', 'Room Type', 'LAST RN']) for bookings in stay_last20_dict.values()], ignore_index=True)
+    NDT = df_stay_last20
+    NDT['LAST RN'] = NDT['LAST RN'].astype(int)
+    NDT['Month'] = NDT['Stay'].dt.month
+    NDT = NDT.drop(NDT[NDT['Month'] == 5].index)
+    NDT['Stay'] = NDT['Stay'].astype(str)
+    mean_by_month_and_rn = NDT.groupby(['Month', 'LAST RN'])['ADR'].mean().reset_index()
+    fig = go.Figure()
+    for month in range(1, 5):
+        month_data = mean_by_month_and_rn[mean_by_month_and_rn['Month'] == month]
+        X = month_data[['LAST RN']]
+        y = month_data['ADR']
+        model = LinearRegression()
+        model.fit(X, y)
+        y_pred = model.predict(X)
+        fig.add_trace(go.Scatter(x=X['LAST RN'], y=y, mode='markers', name='Month {}'.format(month)))
+        fig.add_trace(go.Scatter(x=X['LAST RN'], y=y_pred, mode='lines', name='Best-fit Line (Month {})'.format(month)))
+    fig.update_layout(title='Linear Regression (All Room type)', xaxis_title='LAST RN', yaxis_title='ADR')
+    st.plotly_chart(fig,use_container_width=True)
+    C1,C2 = st.columns(2)
+    with C1:
+      NDT = df_stay_last20[df_stay_last20['Room Type']== 'NEW DELUXE']
+      NDT['LAST RN'] = NDT['LAST RN'].astype(int)
+      NDT['Month'] = NDT['Stay'].dt.month
+      NDT = NDT.drop(NDT[NDT['Month'] == 5].index)
+      NDT['Stay'] = NDT['Stay'].astype(str)
+      mean_by_month_and_rn = NDT.groupby(['Month', 'LAST RN'])['ADR'].mean().reset_index()
+      fig = go.Figure()
+      for month in range(1, 5):
+          month_data = mean_by_month_and_rn[mean_by_month_and_rn['Month'] == month]
+          X = month_data[['LAST RN']]
+          y = month_data['ADR']
+          model = LinearRegression()
+          model.fit(X, y)
+          y_pred = model.predict(X)
+          fig.add_trace(go.Scatter(x=X['LAST RN'], y=y, mode='markers', name='Month {}'.format(month)))
+          fig.add_trace(go.Scatter(x=X['LAST RN'], y=y_pred, mode='lines', name='Best-fit Line (Month {})'.format(month)))
+      fig.update_layout(title='Linear Regression (NEW DELUXE)', xaxis_title='LAST RN', yaxis_title='ADR')
+      st.plotly_chart(fig,use_container_width=True)
+    with C2:
+      NDT = df_stay_last20[df_stay_last20['Room Type']== 'NEW DELUXE TWIN']
+      NDT['LAST RN'] = NDT['LAST RN'].astype(int)
+      NDT['Month'] = NDT['Stay'].dt.month
+      NDT = NDT.drop(NDT[NDT['Month'] == 5].index)
+      NDT['Stay'] = NDT['Stay'].astype(str)
+      mean_by_month_and_rn = NDT.groupby(['Month', 'LAST RN'])['ADR'].mean().reset_index()
+      fig = go.Figure()
+      for month in range(1, 5):
+          month_data = mean_by_month_and_rn[mean_by_month_and_rn['Month'] == month]
+          X = month_data[['LAST RN']]
+          y = month_data['ADR']
+          model = LinearRegression()
+          model.fit(X, y)
+          y_pred = model.predict(X)
+          fig.add_trace(go.Scatter(x=X['LAST RN'], y=y, mode='markers', name='Month {}'.format(month)))
+          fig.add_trace(go.Scatter(x=X['LAST RN'], y=y_pred, mode='lines', name='Best-fit Line (Month {})'.format(month)))
+      fig.update_layout(title='Linear Regression (NEW DELUXE TWIN)', xaxis_title='LAST RN', yaxis_title='ADR')
+      st.plotly_chart(fig,use_container_width=True)
+
+    C1,C2 = st.columns(2)
+    with C1:
+      NDT = df_stay_last20[df_stay_last20['Room Type']== 'GRAND DELUXE']
+      NDT['LAST RN'] = NDT['LAST RN'].astype(int)
+      NDT['Month'] = NDT['Stay'].dt.month
+      NDT = NDT.drop(NDT[NDT['Month'] == 5].index)
+      NDT['Stay'] = NDT['Stay'].astype(str)
+      mean_by_month_and_rn = NDT.groupby(['Month', 'LAST RN'])['ADR'].mean().reset_index()
+      fig = go.Figure()
+      for month in range(1, 5):
+          month_data = mean_by_month_and_rn[mean_by_month_and_rn['Month'] == month]
+          X = month_data[['LAST RN']]
+          y = month_data['ADR']
+          model = LinearRegression()
+          model.fit(X, y)
+          y_pred = model.predict(X)
+          fig.add_trace(go.Scatter(x=X['LAST RN'], y=y, mode='markers', name='Month {}'.format(month)))
+          fig.add_trace(go.Scatter(x=X['LAST RN'], y=y_pred, mode='lines', name='Best-fit Line (Month {})'.format(month)))
+      fig.update_layout(title='Linear Regression (GRAND DELUXE)', xaxis_title='LAST RN', yaxis_title='ADR')
+      st.plotly_chart(fig,use_container_width=True)
+    with C2:
+      NDT = df_stay_last20[df_stay_last20['Room Type']== 'GRAND CORNER SUITES']
+      NDT['LAST RN'] = NDT['LAST RN'].astype(int)
+      NDT['Month'] = NDT['Stay'].dt.month
+      NDT = NDT.drop(NDT[NDT['Month'] == 5].index)
+      NDT['Stay'] = NDT['Stay'].astype(str)
+      mean_by_month_and_rn = NDT.groupby(['Month', 'LAST RN'])['ADR'].mean().reset_index()
+      fig = go.Figure()
+      for month in range(1, 5):
+          month_data = mean_by_month_and_rn[mean_by_month_and_rn['Month'] == month]
+          X = month_data[['LAST RN']]
+          y = month_data['ADR']
+          model = LinearRegression()
+          model.fit(X, y)
+          y_pred = model.predict(X)
+          fig.add_trace(go.Scatter(x=X['LAST RN'], y=y, mode='markers', name='Month {}'.format(month)))
+          fig.add_trace(go.Scatter(x=X['LAST RN'], y=y_pred, mode='lines', name='Best-fit Line (Month {})'.format(month)))
+      fig.update_layout(title='Linear Regression (GRAND CORNER SUITES)', xaxis_title='LAST RN', yaxis_title='ADR')
+      st.plotly_chart(fig,use_container_width=True)
+
+    C1,C2 = st.columns(2)
+    with C1:
+      NDT = df_stay_last20[df_stay_last20['Room Type']== 'UNKNOWN']
+      NDT['LAST RN'] = NDT['LAST RN'].astype(int)
+      NDT['Month'] = NDT['Stay'].dt.month
+      NDT = NDT.drop(NDT[NDT['Month'] == 5].index)
+      NDT['Stay'] = NDT['Stay'].astype(str)
+      mean_by_month_and_rn = NDT.groupby(['Month', 'LAST RN'])['ADR'].mean().reset_index()
+      fig = go.Figure()
+      for month in range(1, 5):
+          month_data = mean_by_month_and_rn[mean_by_month_and_rn['Month'] == month]
+          X = month_data[['LAST RN']]
+          y = month_data['ADR']
+          model = LinearRegression()
+          model.fit(X, y)
+          y_pred = model.predict(X)
+          fig.add_trace(go.Scatter(x=X['LAST RN'], y=y, mode='markers', name='Month {}'.format(month)))
+          fig.add_trace(go.Scatter(x=X['LAST RN'], y=y_pred, mode='lines', name='Best-fit Line (Month {})'.format(month)))
+      fig.update_layout(title='Linear Regression (UNKNOWN)', xaxis_title='LAST RN', yaxis_title='ADR')
+      st.plotly_chart(fig,use_container_width=True)
+    with C2:
+      NDT = df_stay_last20[df_stay_last20['Room Type']== 'MIXED']
+      NDT['LAST RN'] = NDT['LAST RN'].astype(int)
+      NDT['Month'] = NDT['Stay'].dt.month
+      NDT = NDT.drop(NDT[NDT['Month'] == 5].index)
+      NDT['Stay'] = NDT['Stay'].astype(str)
+      mean_by_month_and_rn = NDT.groupby(['Month', 'LAST RN'])['ADR'].mean().reset_index()
+      fig = go.Figure()
+      for month in range(1, 5):
+          month_data = mean_by_month_and_rn[mean_by_month_and_rn['Month'] == month]
+          X = month_data[['LAST RN']]
+          y = month_data['ADR']
+          model = LinearRegression()
+          model.fit(X, y)
+          y_pred = model.predict(X)
+          fig.add_trace(go.Scatter(x=X['LAST RN'], y=y, mode='markers', name='Month {}'.format(month)))
+          fig.add_trace(go.Scatter(x=X['LAST RN'], y=y_pred, mode='lines', name='Best-fit Line (Month {})'.format(month)))
+      fig.update_layout(title='Linear Regression (MIXED)', xaxis_title='LAST RN', yaxis_title='ADR')
+      st.plotly_chart(fig,use_container_width=True)
