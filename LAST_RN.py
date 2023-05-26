@@ -16,7 +16,7 @@ st.set_page_config(
     page_title="LAST RN",
     layout = 'wide',
 )
-st.title('LAST 20 RN (AMBER 85)')
+st.markdown('**LAST 20 RN (AMBER 85)**')
 
 all = pd.read_csv('reservations_summary_report (5).csv',thousands=',')
 def convert_room_type(room_type):
@@ -139,9 +139,6 @@ def perform(all):
                             ,'LOS range']]
                 return all2
 
-all2 =  perform(all)
-all2['ADR'] = all2['ADR'].apply('{:.2f}'.format)
-all2['ADR'] = all2['ADR'].astype('float')
 
 all3 =  perform(all)
 filtered_df = all3
@@ -150,22 +147,135 @@ filtered_df = filtered_df.explode('Stay').reset_index(drop=True)
 filtered_df = filtered_df[['Stay','Check-in','Check-out','Booked-on date','Channel','ADR','Length of stay','Lead time','Lead time range','RN','Quantity','Room Type','Room']]
 
 
-desired_date = st.date_input("Select a date")
-filtered_df_0101 = filtered_df[filtered_df['Stay'].dt.date == pd.to_datetime(desired_date).date()]
-# Perform further operations with the filtered DataFrame
-st.write("Filtered DataFrame for selected date:", desired_date)
-filtered_df_0101_s =  filtered_df_0101.sort_values(by='Booked-on date')
-filtered_df_0101_s['ADR'] = filtered_df_0101_s['ADR'].apply('{:.2f}'.format)
-filtered_df_0101_s['ADR'] = filtered_df_0101_s['ADR'].astype('float')
+filtered_df =  filtered_df.sort_values(by='Booked-on date')
+filtered_df['ADR'] = filtered_df['ADR'].apply('{:.2f}'.format)
+filtered_df['ADR'] = filtered_df['ADR'].astype('float')
+
+stay_last20_dict = {}
+
+for stay, group in filtered_df.groupby('Stay'):
+    last20 = group.tail(40).reset_index(drop=True)
+    num_rows = len(last20)
+    if num_rows < 40:
+        last20['LAST RN'] = list(range(1, num_rows + 1))
+    else:
+        last20['LAST RN'] = list(range(1, 41))
+
+    last20_bookings = last20[['Booked-on date', 'ADR', 'Room Type', 'LAST RN']].values.tolist()
+
+    stay_last20_dict[stay] = last20_bookings
+
+df_stay_last20 = pd.DataFrame(columns=['Stay', 'Booked-on date', 'ADR', 'Room Type', 'LAST RN'])
+for stay, bookings in stay_last20_dict.items():
+    for booking in bookings:
+        if len(booking) >= 4:  # Check if booking has at least four elements
+            df_stay_last20 = df_stay_last20.append({
+                'Stay': stay,
+                'Booked-on date': booking[0],
+                'ADR': booking[1],
+                'Room Type': booking[2],
+                'LAST RN': booking[3]
+            }, ignore_index=True)
+
+ALL = df_stay_last20
+ALL['LAST RN'] = ALL['LAST RN'].astype(int)
+ALL['Month'] = pd.to_datetime(ALL['Stay']).dt.month
+ALL = ALL.drop(ALL[ALL['Month'] == 5].index)
+ALL['Stay'] = ALL['Stay'].astype(str)
+mean_by_month_and_rn = ALL.groupby(['Month', 'LAST RN'])['ADR'].mean().reset_index()
+mean_by_month_and_rn['ADR'] = mean_by_month_and_rn['ADR'].apply('{:.2f}'.format)
+mean_by_month_and_rn['ADR'] = mean_by_month_and_rn['ADR'].astype('float')
+
+ND = df_stay_last20[df_stay_last20['Room Type']== 'NEW DELUXE']
+ND['LAST RN'] = ND['LAST RN'].astype(int)
+ND['Month'] = pd.to_datetime(ND['Stay']).dt.month
+ND = ND.drop(ND[ND['Month'] == 5].index)
+ND['Stay'] = ND['Stay'].astype(str)
+mean_by_month_and_rn0 = ND.groupby(['Month', 'LAST RN'])['ADR'].mean().reset_index()
+mean_by_month_and_rn0['ADR'] = mean_by_month_and_rn0['ADR'].apply('{:.2f}'.format)
+mean_by_month_and_rn0['ADR'] = mean_by_month_and_rn0['ADR'].astype('float')
 
 
-last20 = filtered_df_0101_s.tail(20).reset_index(drop=True)
-num_rows = len(last20)
-if num_rows < 20:
-    last20['LAST RN'] = list(range(1, num_rows + 1))
-else:
-    last20['LAST RN'] = list(range(1, 21))
+GD = df_stay_last20[df_stay_last20['Room Type']== 'GRAND DELUXE']
+GD['LAST RN'] = GD['LAST RN'].astype(int)
+GD['Month'] = pd.to_datetime(GD['Stay']).dt.month
+GD = GD.drop(GD[GD['Month'] == 5].index)
+GD['Stay'] = GD['Stay'].astype(str)
+mean_by_month_and_rn1 = GD.groupby(['Month', 'LAST RN'])['ADR'].mean().reset_index()
+mean_by_month_and_rn1['ADR'] = mean_by_month_and_rn1['ADR'].apply('{:.2f}'.format)
+mean_by_month_and_rn1['ADR'] = mean_by_month_and_rn1['ADR'].astype('float')
 
-fig1 = px.line(last20, x='LAST RN', y='ADR', color='Room Type',text='ADR')
-fig1.update_traces(textposition='top center')
-st.plotly_chart(fig1,use_container_width=True)
+
+NDT = df_stay_last20[df_stay_last20['Room Type']== 'NEW DELUXE TWIN']
+NDT['LAST RN'] = NDT['LAST RN'].astype(int)
+NDT['Month'] = pd.to_datetime(NDT['Stay']).dt.month
+NDT = NDT.drop(NDT[NDT['Month'] == 5].index)
+NDT['Stay'] = NDT['Stay'].astype(str)
+mean_by_month_and_rn2 = NDT.groupby(['Month', 'LAST RN'])['ADR'].mean().reset_index()
+mean_by_month_and_rn2['ADR'] = mean_by_month_and_rn2['ADR'].apply('{:.2f}'.format)
+mean_by_month_and_rn2['ADR'] = mean_by_month_and_rn2['ADR'].astype('float')
+
+GC = df_stay_last20[df_stay_last20['Room Type']== 'GRAND CORNER SUITES']
+GC['LAST RN'] = GC['LAST RN'].astype(int)
+GC['Month'] = pd.to_datetime(GC['Stay']).dt.month
+GC = GC.drop(GC[GC['Month'] == 5].index)
+GC['Stay'] = GC['Stay'].astype(str)
+mean_by_month_and_rn3 = GC.groupby(['Month', 'LAST RN'])['ADR'].mean().reset_index()
+mean_by_month_and_rn3['ADR'] = mean_by_month_and_rn3['ADR'].apply('{:.2f}'.format)
+mean_by_month_and_rn3['ADR'] = mean_by_month_and_rn3['ADR'].astype('float')
+
+UK = df_stay_last20[df_stay_last20['Room Type']== 'UNKNOWN']
+UK['LAST RN'] = UK['LAST RN'].astype(int)
+UK['Month'] = pd.to_datetime(UK['Stay']).dt.month
+UK = UK.drop(UK[UK['Month'] == 5].index)
+UK['Stay'] = UK['Stay'].astype(str)
+mean_by_month_and_rn4 = UK.groupby(['Month', 'LAST RN'])['ADR'].mean().reset_index()
+mean_by_month_and_rn4['ADR'] = mean_by_month_and_rn4['ADR'].apply('{:.2f}'.format)
+mean_by_month_and_rn4['ADR'] = mean_by_month_and_rn4['ADR'].astype('float')
+
+MIXED = df_stay_last20[df_stay_last20['Room Type']== 'MIXED']
+MIXED['LAST RN'] = MIXED['LAST RN'].astype(int)
+MIXED['Month'] = pd.to_datetime(MIXED['Stay']).dt.month
+MIXED = MIXED.drop(MIXED[MIXED['Month'] == 5].index)
+MIXED['Stay'] = MIXED['Stay'].astype(str)
+mean_by_month_and_rn5 = MIXED.groupby(['Month', 'LAST RN'])['ADR'].mean().reset_index()
+mean_by_month_and_rn5['ADR'] = mean_by_month_and_rn5['ADR'].apply('{:.2f}'.format)
+mean_by_month_and_rn5['ADR'] = mean_by_month_and_rn5['ADR'].astype('float')
+
+fig = px.line(mean_by_month_and_rn, x='LAST RN', y='ADR',color='Month',text='ADR')
+fig.update_traces(textposition='top center')
+fig.update_layout(title='Plot of ADR by LAST RN  (ALL ROOM TYPE)')
+st.plotly_chart(fig,use_container_width=True)
+
+C1,C2 = st.columns(2)
+with C1:
+  fig1 = px.line(mean_by_month_and_rn0, x='LAST RN', y='ADR',color='Month',text='ADR')
+  fig1.update_traces(textposition='top center')
+  fig1.update_layout(title='Plot of ADR by LAST RN  (NEW DELUXE)')
+  st.plotly_chart(fig1,use_container_width=True)
+with C2:
+  fig2 = px.line(mean_by_month_and_rn2, x='LAST RN', y='ADR',color='Month',text='ADR')
+  fig2.update_traces(textposition='top center')
+  fig2.update_layout(title='Plot of ADR by LAST RN  (NEW DELUXE TWIN)')
+
+C1,C2 = st.columns(2)
+with C1:
+  fig1 = px.line(mean_by_month_and_rn1, x='LAST RN', y='ADR',color='Month',text='ADR')
+  fig1.update_traces(textposition='top center')
+  fig1.update_layout(title='Plot of ADR by LAST RN  (GRAND DELUXE)')
+  st.plotly_chart(fig1,use_container_width=True)
+with C2:
+  fig2 = px.line(mean_by_month_and_rn3, x='LAST RN', y='ADR',color='Month',text='ADR')
+  fig2.update_traces(textposition='top center')
+  fig2.update_layout(title='Plot of ADR by LAST RN  (GRAND CORNER SUITES)')
+
+C1,C2 = st.columns(2)
+with C1:
+  fig1 = px.line(mean_by_month_and_rn4, x='LAST RN', y='ADR',color='Month',text='ADR')
+  fig1.update_traces(textposition='top center')
+  fig1.update_layout(title='Plot of ADR by LAST RN  (UNKNOWN)')
+  st.plotly_chart(fig1,use_container_width=True)
+with C2:
+  fig2 = px.line(mean_by_month_and_rn5, x='LAST RN', y='ADR',color='Month',text='ADR')
+  fig2.update_traces(textposition='top center')
+  fig2.update_layout(title='Plot of ADR by LAST RN  (MIXED)')
