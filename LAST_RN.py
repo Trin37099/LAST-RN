@@ -160,12 +160,11 @@ for stay, group in filtered_df.groupby('Stay'):
         last20['LAST RN'] = list(range(1, num_rows + 1))
     else:
         last20['LAST RN'] = list(range(1, 41))
-
     last20_bookings = last20[['Booked-on date', 'ADR', 'Room Type', 'LAST RN']].values.tolist()
 
     stay_last20_dict[stay] = last20_bookings
-
 df_stay_last20 = pd.DataFrame(columns=['Stay', 'Booked-on date', 'ADR', 'Room Type', 'LAST RN'])
+
 for stay, bookings in stay_last20_dict.items():
     for booking in bookings:
         if len(booking) >= 4:  # Check if booking has at least four elements
