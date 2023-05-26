@@ -153,18 +153,28 @@ filtered_df['ADR'] = filtered_df['ADR'].astype('float')
 
 stay_last20_dict = {}
 
+# Group the DataFrame by 'Stay' column
 for stay, group in filtered_df.groupby('Stay'):
+    # Select the last 40 rows for each group and reset the index
     last20 = group.tail(40).reset_index(drop=True)
     num_rows = len(last20)
+    
+    # Generate 'LAST RN' values based on the number of rows
     if num_rows < 40:
         last20['LAST RN'] = list(range(1, num_rows + 1))
     else:
         last20['LAST RN'] = list(range(1, 41))
+
+    # Extract the required columns and convert to a list
     last20_bookings = last20[['Booked-on date', 'ADR', 'Room Type', 'LAST RN']].values.tolist()
 
+    # Store the list of last 20 bookings in the dictionary
     stay_last20_dict[stay] = last20_bookings
+
+# Create an empty DataFrame to store the final results
 df_stay_last20 = pd.DataFrame(columns=['Stay', 'Booked-on date', 'ADR', 'Room Type', 'LAST RN'])
 
+# Iterate over the dictionary and append the bookings to the DataFrame
 for stay, bookings in stay_last20_dict.items():
     for booking in bookings:
         if len(booking) >= 4:  # Check if booking has at least four elements
@@ -175,7 +185,6 @@ for stay, bookings in stay_last20_dict.items():
                 'Room Type': booking[2],
                 'LAST RN': booking[3]
             }, ignore_index=True)
-
 ALL = df_stay_last20
 ALL['LAST RN'] = ALL['LAST RN'].astype(int)
 ALL['Month'] = pd.to_datetime(ALL['Stay']).dt.month
