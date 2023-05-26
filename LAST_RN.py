@@ -154,11 +154,8 @@ filtered_df['ADR'] = filtered_df['ADR'].astype('float')
 stay_last20_dict = {}
 
 for stay, group in filtered_df.groupby('Stay'):
-    # Select the last 40 rows for each group and reset the index
     last20 = group.tail(40).reset_index(drop=True)
     num_rows = len(last20)
-    
-    # Generate 'LAST RN' values based on the number of rows
     if num_rows < 40:
         last20['LAST RN'] = list(range(1, num_rows + 1))
     else:
@@ -167,9 +164,9 @@ for stay, group in filtered_df.groupby('Stay'):
     last20_bookings = last20[['Stay','Booked-on date', 'ADR', 'Room Type', 'LAST RN']].values.tolist()
 
     stay_last20_dict[stay] = last20_bookings
-df_stay_last20 = pd.concat([pd.DataFrame(bookings
-                                         , columns=['Stay'
-                                                    ,'Booked-on date', 'ADR', 'Room Type', 'LAST RN']) for bookings in stay_last20_dict.values()], ignore_index=True)
+
+df_stay_last20 = pd.concat([pd.DataFrame(bookings, columns=['Stay','Booked-on date', 'ADR', 'Room Type', 'LAST RN']) for bookings in stay_last20_dict.values()], ignore_index=True)
+
 ALL = df_stay_last20
 ALL['LAST RN'] = ALL['LAST RN'].astype(int)
 ALL['Month'] = pd.to_datetime(ALL['Stay']).dt.month
@@ -250,7 +247,7 @@ with C2:
   fig2 = px.line(mean_by_month_and_rn2, x='LAST RN', y='ADR',color='Month',text='ADR')
   fig2.update_traces(textposition='top center')
   fig2.update_layout(title='Plot of ADR by LAST RN  (NEW DELUXE TWIN)')
-
+  st.plotly_chart(fig2,use_container_width=True)
 C1,C2 = st.columns(2)
 with C1:
   fig1 = px.line(mean_by_month_and_rn1, x='LAST RN', y='ADR',color='Month',text='ADR')
@@ -261,6 +258,7 @@ with C2:
   fig2 = px.line(mean_by_month_and_rn3, x='LAST RN', y='ADR',color='Month',text='ADR')
   fig2.update_traces(textposition='top center')
   fig2.update_layout(title='Plot of ADR by LAST RN  (GRAND CORNER SUITES)')
+  st.plotly_chart(fig2,use_container_width=True)
 
 C1,C2 = st.columns(2)
 with C1:
@@ -272,3 +270,5 @@ with C2:
   fig2 = px.line(mean_by_month_and_rn5, x='LAST RN', y='ADR',color='Month',text='ADR')
   fig2.update_traces(textposition='top center')
   fig2.update_layout(title='Plot of ADR by LAST RN  (MIXED)')
+  st.plotly_chart(fig2,use_container_width=True)
+
