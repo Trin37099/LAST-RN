@@ -550,21 +550,24 @@ with t3:
       fig.update_layout(title='Linear Regression (UNKNOWN)', xaxis_title='LAST RN', yaxis_title='ADR')
       st.plotly_chart(fig,use_container_width=True)
     with C2:
-      NDT = df_stay_last20[df_stay_last20['Room Type']== 'MIXED']
-      NDT['LAST RN'] = NDT['LAST RN'].astype(int)
-      NDT['Month'] = NDT['Stay'].dt.month
-      NDT = NDT.drop(NDT[NDT['Month'] == 5].index)
-      NDT['Stay'] = NDT['Stay'].astype(str)
-      mean_by_month_and_rn = NDT.groupby(['Month', 'LAST RN'])['ADR'].mean().reset_index()
-      fig = go.Figure()
-      for month in range(1, 5):
-          month_data = mean_by_month_and_rn[mean_by_month_and_rn['Month'] == month]
-          X = month_data[['LAST RN']]
-          y = month_data['ADR']
-          model = LinearRegression()
-          model.fit(X, y)
-          y_pred = model.predict(X)
-          fig.add_trace(go.Scatter(x=X['LAST RN'], y=y, mode='markers', name='Month {}'.format(month)))
-          fig.add_trace(go.Scatter(x=X['LAST RN'], y=y_pred, mode='lines', name='Best-fit Line (Month {})'.format(month)))
-      fig.update_layout(title='Linear Regression (MIXED)', xaxis_title='LAST RN', yaxis_title='ADR')
-      st.plotly_chart(fig,use_container_width=True)
+        try:
+          NDT = df_stay_last20[df_stay_last20['Room Type']== 'MIXED']
+          NDT['LAST RN'] = NDT['LAST RN'].astype(int)
+          NDT['Month'] = NDT['Stay'].dt.month
+          NDT = NDT.drop(NDT[NDT['Month'] == 5].index)
+          NDT['Stay'] = NDT['Stay'].astype(str)
+          mean_by_month_and_rn = NDT.groupby(['Month', 'LAST RN'])['ADR'].mean().reset_index()
+          fig = go.Figure()
+          for month in range(1, 5):
+              month_data = mean_by_month_and_rn[mean_by_month_and_rn['Month'] == month]
+              X = month_data[['LAST RN']]
+              y = month_data['ADR']
+              model = LinearRegression()
+              model.fit(X, y)
+              y_pred = model.predict(X)
+              fig.add_trace(go.Scatter(x=X['LAST RN'], y=y, mode='markers', name='Month {}'.format(month)))
+              fig.add_trace(go.Scatter(x=X['LAST RN'], y=y_pred, mode='lines', name='Best-fit Line (Month {})'.format(month)))
+          fig.update_layout(title='Linear Regression (MIXED)', xaxis_title='LAST RN', yaxis_title='ADR')
+          st.plotly_chart(fig,use_container_width=True)
+        except Exception as none:
+              st.write("")
